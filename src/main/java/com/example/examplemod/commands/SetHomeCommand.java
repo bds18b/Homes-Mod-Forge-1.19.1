@@ -1,20 +1,13 @@
 package com.example.examplemod.commands;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import com.example.examplemod.ExampleMod;
-import net.minecraft.world.entity.player.Player;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Set;
 
 
 public class SetHomeCommand {
