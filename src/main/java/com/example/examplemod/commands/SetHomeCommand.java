@@ -44,10 +44,16 @@ public class SetHomeCommand {
 
     private int returnHome(CommandSourceStack source, String name){
         Entity player = source.getPlayer();
-        int[] intArray = player.getPersistentData().getIntArray("examplemod:" + name);
-        player.teleportTo(intArray[0], intArray[1], intArray[2]);
-        source.sendSystemMessage(Component.literal("Teleported player to home: " + name));
-        return 1;
+
+        if (player.getPersistentData().getIntArray("examplemod:" + name).length==0) {
+            player.sendSystemMessage(Component.literal("Home: " + name + " does not exist!"));
+            return -1;
+        } else {
+            int[] intArray = player.getPersistentData().getIntArray("examplemod:" + name);
+            player.teleportTo(intArray[0], intArray[1], intArray[2]);
+            source.sendSystemMessage(Component.literal("Teleported player to home: " + name));
+            return 1;
+        }
     }
 
     private int getHomes(CommandSourceStack source){
@@ -63,22 +69,22 @@ public class SetHomeCommand {
 
     private int removeHome(CommandSourceStack source, String name){
         Entity player = source.getPlayer();
-        try{
+        if (player.getPersistentData().getIntArray("examplemod:" + name).length==0) {
+            player.sendSystemMessage(Component.literal("Home: " + name + " does not exist!"));
+            return -1;
+        } else {
             player.getPersistentData().remove("examplemod:" + name);
             source.sendSystemMessage(Component.literal("Removed home: " + name));
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-
         return 1;
     }
 
     private int setHome(CommandSourceStack source, String name) {
         Entity player = source.getPlayer();
 
-        Object[] objects = player.getPersistentData().getAllKeys().toArray();
-        for (Object object : objects) {
-            if (object.toString().contains("examplemod:" + name)) {
+        ArrayList<String> homesList = listHomes(source);
+        for (String s : homesList) {
+            if (s.contains(name)){
                 source.sendSystemMessage(Component.literal("A home by the name: " + name + " already exists!"));
                 source.sendSystemMessage(Component.literal("To remove a home: \"/remove [home name]\""));
                 return -1;
@@ -95,6 +101,7 @@ public class SetHomeCommand {
         return 1;
     }
 
+    // helper function that gets the homes of the player
     private ArrayList<String> listHomes(CommandSourceStack source){
         Entity player = source.getPlayer();
         ArrayList<String> homes = new ArrayList<>();
