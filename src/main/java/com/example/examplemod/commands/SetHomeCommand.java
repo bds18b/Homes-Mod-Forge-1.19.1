@@ -35,6 +35,11 @@ public class SetHomeCommand {
         dispatcher.register(Commands.literal("home").then(Commands.argument("name", StringArgumentType.string()).executes((command) ->{
             return returnHome(command.getSource(), StringArgumentType.getString(command, "name"));
         })));
+
+        // remove home command
+        dispatcher.register(Commands.literal("remove").then(Commands.literal("home").then(Commands.argument("name", StringArgumentType.string()).executes((command) ->{
+            return removeHome(command.getSource(), StringArgumentType.getString(command, "name"));
+        }))));
     }
 
     private int returnHome(CommandSourceStack source, String name){
@@ -46,19 +51,25 @@ public class SetHomeCommand {
     }
 
     private int getHomes(CommandSourceStack source){
-        Entity player = source.getPlayer();
-
-        Object[] objects = player.getPersistentData().getAllKeys().toArray();
-        source.sendSystemMessage(Component.literal("Homes: "));
-        for (int i = 0; i < objects.length; ++i){
-            if (objects[i].toString().contains("examplemod:")){
-                source.sendSystemMessage(Component.literal(objects[i].toString().substring(11)));
-            }
+        ArrayList<String> homes = listHomes(source);
+        if (homes.size() == 0){
+            source.sendSystemMessage(Component.literal("No homes are set!"));
+            return -1;
         }
+        source.sendSystemMessage(Component.literal("Homes: "));
+        source.sendSystemMessage(Component.literal(homes.toString()));
         return 1;
     }
 
     private int removeHome(CommandSourceStack source, String name){
+        Entity player = source.getPlayer();
+        try{
+            player.getPersistentData().remove("examplemod:" + name);
+            source.sendSystemMessage(Component.literal("Removed home: " + name));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return 1;
     }
 
@@ -77,11 +88,22 @@ public class SetHomeCommand {
         int [] home_coordinates = {player.getBlockX(), player.getBlockY(), player.getBlockZ()};
         String xyz = Arrays.toString(home_coordinates);
 
-
         //add the home to the player's data
         player.getPersistentData().putIntArray(ExampleMod.MODID + ":"  + name, home_coordinates);
 
         source.sendSystemMessage(Component.literal("Set a home at " + xyz));
         return 1;
+    }
+
+    private ArrayList<String> listHomes(CommandSourceStack source){
+        Entity player = source.getPlayer();
+        ArrayList<String> homes = new ArrayList<>();
+        Object[] objects = player.getPersistentData().getAllKeys().toArray();
+        for (Object object : objects) {
+            if (object.toString().contains("examplemod:")) {
+                homes.add(object.toString().substring(11));
+            }
+        }
+        return homes;
     }
 }
